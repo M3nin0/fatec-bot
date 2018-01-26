@@ -27,10 +27,9 @@ bot.on('message', message => {
                 users[message.author.id] = testAccount;
             }); 
         } catch {
-            message.reply('É necessário antes registrar sua conta.\n' +
-                            'Para isso use: set user SEU_USUARIO && password SUA_SENHA');
+            message.reply('Erro ao tentar registrar seu usuário. Tente novamente com:\n' +
+                            'set user SEU_USUARIO && password SUA_SENHA');
         }
-        
     }
     
     else if (message.content == '!Comandos') {
