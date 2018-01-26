@@ -26,6 +26,20 @@ class ToolBox{
         ano = date.getFullYear();  
         return _dia + "/" + _mes + "/" + ano;
     }
+
+
+    /** Método para formatar horas **/
+    static hoursFormat(date: Date) : string {
+        let hora;
+        let min;
+        let seconds;
+
+        hora = date.getHours();
+        min = date.getMinutes();
+        seconds = date.getSeconds();
+
+        return hora + ':' + min + ':' + seconds
+    } 
 }
 
 export { ToolBox };

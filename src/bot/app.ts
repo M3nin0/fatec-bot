@@ -47,11 +47,16 @@ bot.on('message', message => {
     } 
     
     else if (message.content == '!Matriculadas') {
-
+        
     } 
     
     else if (message.content == '!Calendario') {
-
+        try {
+            Dialog.calendario(message, users[message.author.id]);
+        } catch {
+            message.reply('É necessário antes registrar sua conta.\n' +
+                            'Para isso use: set user SEU_USUARIO && password SUA_SENHA');
+        }
     } 
     
     else if (message.content == '!Faltas') {

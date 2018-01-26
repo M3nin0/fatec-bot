@@ -1,6 +1,7 @@
 import { Student } from './Student';
 import { Account } from 'fatec-api';
 import { Message } from 'discord.js';
+import { ToolBox } from './ToolBox';
 import { Q } from 'q';
 
 class Dialog{
@@ -52,7 +53,9 @@ class Dialog{
     **/
     static async horario(message: Message, student: Student): Promise<any> {
         
-        let diasSemana = ['', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira','Sexta-feira'];
+        let diasSemana = ['', 'Segunda-feira :sun_with_face: ', 'Terça-feira :dromedary_camel:',
+                            'Quarta-feira :dromedary_camel: ', 
+                            'Quinta-feira :free: ','Sexta-feira :smiling_imp:'];
 
         let _horarios = [];
         
@@ -68,9 +71,38 @@ class Dialog{
                 
                 message.reply('Nome: ' + materia.discipline.name + 
                               '\nCódigo: ' + materia.discipline.code + 
-                              '\nHorário de início: ' + materia.startAt +
-                              '\nHorário de término: ' + materia.startAt);
+                              '\nHorário de início: ' + ToolBox.hoursFormat(materia.startAt) +
+                              '\nHorário de término: ' + ToolBox.hoursFormat(materia.endAt));
             };
+
+            message.reply('\n---------------------------\n\n');
+        }
+    }
+
+    /** Método para busca de datas no calendário acadêmico
+     * - Não salva nenhuma informação, sempre consulta o fatec-api
+    **/
+    static async calendario(message: Message, student: Student): Promise<any> {
+
+        let _eventos = {'months': []};
+
+        await student.myAccount.getAcademicCalendar().then(
+            calendario => {
+                _eventos = calendario;
+        });
+
+        message.reply('Veja os eventos que estão marcados no calendário');
+        for (let mes of _eventos.months) {
+            for (let eventName of mes.events) {
+                
+                // Tratando a data recebida
+                let date = ToolBox.dateFormat(eventName.date);
+
+                message.reply('Nome do evento: ' + eventName.reason + '\n' +
+                              'Tipo do evento: ' + eventName.name +  '\n' + 
+                              'Data: ' + date + '\n' +
+                              '---------- ## ----------');
+            } 
         }
     }
 }
