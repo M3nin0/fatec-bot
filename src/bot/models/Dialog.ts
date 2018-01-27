@@ -11,7 +11,8 @@ class Dialog{
                 '!Matriculadas - Devolve as disciplinas em que você está matriculado (a)\n' +
                 '!Calendario - Devolve os eventos que irão ocorrer no mês\n' +
                 '!Faltas - Devolve suas faltas nas disciplinas matriculadas\n' +
-                '!Perfil - Devolve informações de seu perfil recuperadas do SIGA';
+                '!Perfil - Devolve informações de seu perfil recuperadas do SIGA\n' +
+                '!Historico - Devolve o histórico das matérias cursadas pelo aluno';
     }
 
     /** Método para realizar teste de conexão com o SIGA 
@@ -103,6 +104,46 @@ class Dialog{
                               'Data: ' + date + '\n' +
                               '---------- ## ----------');
             } 
+        }
+    }
+
+    /** Método para recuperar o histórico de máterias do aluno
+     * - Não salva nenhuma informação, sempre consulta o fatec-api
+     **/
+    static async historico(message: Message, student: Student) {
+        let _historico = {'entries': []};
+
+        await student.myAccount.getHistory().then(historico => {
+            _historico = historico;
+        });
+
+        message.reply('Histórico de matérias');
+        message.reply('Matérias em que você foi aprovado :apple:');
+        for (let entrie of _historico.entries) {
+            if (entrie.observation == 'Aprovado por Nota e Frequência') {
+                message.reply('Nome da matéria: ' + entrie.discipline.name + '\n' + 
+                          'Código: ' + entrie.discipline.code + '\n' +
+                          'Frequência: ' + entrie.discipline.frequency + ' %\n' +
+                          'Período: ' + entrie.discipline.period);
+            }
+        }
+    }
+
+    static async historicoEmCurso(message: Message, student: Student) {
+        let _historico = {'entries': []};
+
+        await student.myAccount.getHistory().then(historico => {
+            _historico = historico;
+        })
+
+        message.reply('Matérias que você está cursando :construction_worker:');
+        for (let entrie of _historico.entries) {
+            if (entrie.observation == 'Em Curso') {
+                message.reply('Nome da matéria: ' + entrie.discipline.name + '\n' + 
+                          'Código: ' + entrie.discipline.code + '\n' +
+                          'Frequência: ' + entrie.discipline.frequency + ' %\n' +
+                          'Período: ' + entrie.discipline.period);
+            }
         }
     }
 }

@@ -60,7 +60,22 @@ bot.on('message', message => {
     } 
     
     else if (message.content == '!Faltas') {
+        
+    }
 
+    else if (message.content.slice(0, 10) == '!Historico') {
+        try {
+            
+            if (message.content.slice(11) == 'aprovado') {
+                Dialog.historico(message, users[message.author.id]);
+            } else if (message.content.slice() == 'cursando') {
+                Dialog.historicoEmCurso(message, users[message.author.id]);
+            }        
+
+        } catch {
+            message.reply('É necessário antes registrar sua conta.\n' +
+                            'Para isso use: set user SEU_USUARIO && password SUA_SENHA');
+        }
     }
 
     else if (message.content == '!Perfil') {
