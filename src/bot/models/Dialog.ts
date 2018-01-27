@@ -1,6 +1,7 @@
 import { Student } from './Student';
 import { Account } from 'fatec-api';
-import { Message } from 'discord.js';
+import { Message, RichEmbed } from 'discord.js';
+import * as Discord from 'discord.js';
 import { ToolBox } from './ToolBox';
 import { Q } from 'q';
 
@@ -12,7 +13,8 @@ class Dialog{
                 '!Calendario - Devolve os eventos que irão ocorrer no mês\n' +
                 '!Faltas - Devolve suas faltas nas disciplinas matriculadas\n' +
                 '!Perfil - Devolve informações de seu perfil recuperadas do SIGA\n' +
-                '!Historico - Devolve o histórico das matérias cursadas pelo aluno';
+                '!Historico - Devolve o histórico das matérias cursadas pelo aluno\n' +
+                '!Ajuda - Para obter ajuda com a utilização do bot';
     }
 
     /** Método para realizar teste de conexão com o SIGA 
@@ -52,7 +54,7 @@ class Dialog{
     /** Método para aquisição do horário do aluno 
     * - Este método não salva nenhuma informação, isso para que sempre a API seja consultada
     **/
-    static async horario(message: Message, student: Student): Promise<any> {
+    static async horario(message: Message, student: Student) {
         
         let diasSemana = ['', 'Segunda-feira :sun_with_face: ', 'Terça-feira :dromedary_camel:',
                             'Quarta-feira :dromedary_camel: ', 
@@ -64,18 +66,21 @@ class Dialog{
             _horarios = horarios;
         });
 
+        message.reply('Horários:');
         for (let horario of _horarios) {
-            message.reply('Dia da semana: ' + diasSemana[horario.weekday]);
-            message.reply('Horários:');
-
+        
             for (let materia of horario.periods) {
-                
-                message.reply('Nome: ' + materia.discipline.name + 
-                              '\nCódigo: ' + materia.discipline.code + 
-                              '\nHorário de início: ' + ToolBox.hoursFormat(materia.startAt) +
-                              '\nHorário de término: ' + ToolBox.hoursFormat(materia.endAt));
-            };
 
+                let richMessage: RichEmbed = new Discord.RichEmbed();
+                richMessage.setAuthor('Fatec-Bot');
+                richMessage.description = 'Dia da semana: ' + diasSemana[horario.weekday];
+                richMessage.addField('Nome ', materia.discipline.name);
+                richMessage.addField('Código ', materia.discipline.code);
+                richMessage.addField('Horário de início ', ToolBox.hoursFormat(materia.startAt));
+                richMessage.addField('Horário de término ', ToolBox.hoursFormat(materia.endAt));
+
+                message.reply({embed: richMessage});
+            };
             message.reply('\n---------------------------\n\n');
         }
     }
@@ -83,7 +88,7 @@ class Dialog{
     /** Método para busca de datas no calendário acadêmico
      * - Não salva nenhuma informação, sempre consulta o fatec-api
     **/
-    static async calendario(message: Message, student: Student): Promise<any> {
+    static async calendario(message: Message, student: Student) {
 
         let _eventos = {'months': []};
 
@@ -92,18 +97,26 @@ class Dialog{
                 _eventos = calendario;
         });
 
-        message.reply('Veja os eventos que estão marcados no calendário');
+        message.reply('Veja os eventos que estão marcados no calendário semestral');
         for (let mes of _eventos.months) {
-            for (let eventName of mes.events) {
-                
-                // Tratando a data recebida
-                let date = ToolBox.dateFormat(eventName.date);
+            
+            let richMessage: RichEmbed = new Discord.RichEmbed();
+            richMessage.setAuthor('Fatec-Bot');
+            var date:any;
 
-                message.reply('Nome do evento: ' + eventName.reason + '\n' +
-                              'Tipo do evento: ' + eventName.name +  '\n' + 
-                              'Data: ' + date + '\n' +
-                              '---------- ## ----------');
+            for (let eventName of mes.events) {
+            
+                // Tratando a data recebida
+                date = ToolBox.dateFormat(eventName.date);
+
+                richMessage.addField('Nome do evento', eventName.reason);
+                richMessage.addField('Tipo do evento', eventName.name);
+                richMessage.addField('Data', date);
             } 
+
+            if (date > ToolBox.dateFormat(new Date())) {
+                message.reply({embed: richMessage}); 
+            }          
         }
     }
 
@@ -145,6 +158,8 @@ class Dialog{
                           'Período: ' + entrie.discipline.period);
             }
         }
+
+        message.reply()
     }
 }
 
