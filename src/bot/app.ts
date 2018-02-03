@@ -1,4 +1,4 @@
-import { Client } from 'discord.js';
+import { Client, RichEmbed } from 'discord.js';
 import { Account } from 'fatec-api';
 import { Dialog } from './models/Dialog';
 import { Student } from './models/Student';
@@ -33,13 +33,15 @@ bot.on('message', message => {
     }
     
     else if (message.content == '!Comandos') {
-        message.reply(Dialog.comands());
+        let embeded: RichEmbed = Dialog.comands();
+        
+        message.reply({embed: embeded });
     } 
     
     else if (message.content == '!Horario') {
         
         try {
-            Dialog.horario(message, users[message.author.id]);
+            Dialog.schedule(message, users[message.author.id]);
         } catch {
             message.reply('É necessário antes registrar sua conta.\n' +
                             'Para isso use: set user SEU_USUARIO && password SUA_SENHA');
@@ -47,12 +49,17 @@ bot.on('message', message => {
     } 
     
     else if (message.content == '!Matriculadas') {
-        
+        try {
+            Dialog.enrolledSubjects(message, users[message.author.id]);   
+        } catch {
+            message.reply('É necessário antes registrar sua conta.\n' +
+                            'Para isso use: set user SEU_USUARIO && password SUA_SENHA');
+        }
     } 
     
     else if (message.content == '!Calendario') {
         try {
-            Dialog.calendario(message, users[message.author.id]);
+            Dialog.calendar(message, users[message.author.id]);
         } catch {
             message.reply('É necessário antes registrar sua conta.\n' +
                             'Para isso use: set user SEU_USUARIO && password SUA_SENHA');
@@ -60,16 +67,21 @@ bot.on('message', message => {
     } 
     
     else if (message.content == '!Faltas') {
-        
+        try {
+            Dialog.absence(message, users[message.author.id]);
+        } catch {
+            message.reply('É necessário antes registrar sua conta.\n' +
+                            'Para isso use: set user SEU_USUARIO && password SUA_SENHA');
+        }
     }
 
     else if (message.content.slice(0, 10) == '!Historico') {
         try {
             
             if (message.content.slice(11) == 'aprovado') {
-                Dialog.historico(message, users[message.author.id]);
-            } else if (message.content.slice() == 'cursando') {
-                Dialog.historicoEmCurso(message, users[message.author.id]);
+                Dialog.historic(message, users[message.author.id]);
+            } else if (message.content.slice(11) == 'cursando') {
+                Dialog.historicInProgress(message, users[message.author.id]);
             }        
 
         } catch {

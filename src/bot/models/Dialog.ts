@@ -7,15 +7,23 @@ import { Q } from 'q';
 
 class Dialog{
 
-    static comands(): string {
-        return '!Comandos - Exibe os comandos que poderão ser usados com o bot\n' +
-                '!Horario - Devolve seu horário\n' +
-                '!Matriculadas - Verifica as disciplinas em que você está matriculado (a)\n' +
-                '!Calendario - Devolve os eventos que irão ocorrer no mês\n' +
-                '!Faltas - Devolve suas faltas nas disciplinas matriculadas\n' +
-                '!Perfil - Devolve informações de seu perfil recuperadas do SIGA\n' +
-                '!Historico - Devolve o histórico das matérias cursadas pelo aluno\n' +
-                '!Ajuda - Para obter ajuda com a utilização do bot';
+    static comands(): RichEmbed {
+ 
+        let embeded: RichEmbed = new Discord.RichEmbed();
+
+        embeded.setAuthor('O Criador');
+        embeded.setColor('DARK_RED');
+
+        embeded.addField('!Comandos', 'Exibe os comandos que poderão ser usados com o bot');
+        embeded.addField('!Horario', 'Devolve seu horário');
+        embeded.addField('!Matriculadas', 'Verifica as disciplinas em que você está matriculado (a)');
+        embeded.addField('!Calendario', 'Devolve os eventos que irão ocorrer no mês');
+        embeded.addField('!Faltas', 'Devolve suas faltas nas disciplinas matriculadas');
+        embeded.addField('!Perfil', 'Devolve informações de seu perfil recuperadas do SIGA');
+        embeded.addField('!Historico', 'Devolve o histórico das matérias cursadas pelo aluno');
+        embeded.addField('!Ajuda', 'Para obter ajuda com a utilização do bot');
+
+        return embeded;
     }
 
     /** Método para realizar teste de conexão com o SIGA 
@@ -55,7 +63,7 @@ class Dialog{
     /** Método para aquisição do horário do aluno 
     * - Este método não salva nenhuma informação, isso para que sempre a API seja consultada
     **/
-    static async horario(message: Message, student: Student) {
+    static async schedule(message: Message, student: Student) {
         
         let diasSemana = ['', 'Segunda-feira :sun_with_face: ', 'Terça-feira :dromedary_camel:',
                             'Quarta-feira :dromedary_camel: ', 
@@ -95,7 +103,7 @@ class Dialog{
     /** Método para busca de datas no calendário acadêmico
      * - Não salva nenhuma informação, sempre consulta o fatec-api
     **/
-    static async calendario(message: Message, student: Student) {
+    static async calendar(message: Message, student: Student) {
 
         let _eventos = {'months': []};
 
@@ -130,8 +138,9 @@ class Dialog{
     /** Método para recuperar o histórico de máterias do aluno
      * - Não salva nenhuma informação, sempre consulta o fatec-api
      **/
-    static async historico(message: Message, student: Student) {
+    static async historic(message: Message, student: Student) {
         let _historico = {'entries': []};
+        let _aprovadas = '';
 
         await student.myAccount.getHistory().then(historico => {
             _historico = historico;
@@ -141,15 +150,14 @@ class Dialog{
         message.reply('Matérias em que você foi aprovado :apple:');
         for (let entrie of _historico.entries) {
             if (entrie.observation == 'Aprovado por Nota e Frequência') {
-                message.reply('Nome da matéria: ' + entrie.discipline.name + '\n' + 
-                          'Código: ' + entrie.discipline.code + '\n' +
-                          'Frequência: ' + entrie.discipline.frequency + ' %\n' +
-                          'Período: ' + entrie.discipline.period);
+                _aprovadas += entrie.discipline.name + '\n';
             }
         }
+        message.reply(_aprovadas);
     }
 
-    static async historicoEmCurso(message: Message, student: Student) {
+    /** Exibe a grade de máterias que o usuário está cursando */
+    static async historicInProgress(message: Message, student: Student) {
         let _historico = {'entries': []};
 
         await student.myAccount.getHistory().then(historico => {
@@ -159,21 +167,23 @@ class Dialog{
         message.reply('Matérias que você está cursando :construction_worker:');
         for (let entrie of _historico.entries) {
             if (entrie.observation == 'Em Curso') {
-                message.reply('Nome da matéria: ' + entrie.discipline.name + '\n' + 
-                          'Código: ' + entrie.discipline.code + '\n' +
-                          'Frequência: ' + entrie.discipline.frequency + ' %\n' +
-                          'Período: ' + entrie.discipline.period);
+                let richMessage: RichEmbed = new Discord.RichEmbed();
+                
+                richMessage.addField('Nome da matéria: ', entrie.discipline.name);
+                richMessage.addField('Código', entrie.discipline.code);
+                richMessage.addField('Frequência', entrie.discipline.frequency + ' %');
+                richMessage.addField('Período',  entrie.discipline.period);
+
+                message.reply({embed: richMessage});
             }
         }
-
-        message.reply()
     }
 
     /** 
      * Método para consultar as matérias que o aluno está matriculado.
      *  - Não salva nenhuma informação, sempre consulta o fatec-api
     */
-    static async materiasMatriculadas(message: Message, student: Student) {
+    static async enrolledSubjects(message: Message, student: Student) {
         let disciplinas = [];
 
         await student.myAccount.getEnrolledDisciplines().then(matriculadas => {
@@ -192,6 +202,30 @@ class Dialog{
         }
     }
 
+    /** Método para verificar as faltas dos usuários **/
+    static async absence(message: Message, student: Student) {
+        let disciplinas = [];
+
+        await student.myAccount.getEnrolledDisciplines().then(matriculadas => {
+            disciplinas = matriculadas;
+        });
+
+        message.reply('Faltas nas matérias');
+        for (var disciplina of disciplinas) {
+            
+            let richMessage: RichEmbed = new Discord.RichEmbed();
+
+            richMessage.addField('Nome da matéria', disciplina.name);
+            richMessage.addField('Nome do professor', disciplina.teacherName);
+            richMessage.addField('Quantidade de faltas', disciplina.absenses);
+
+            if (disciplina.absenses > disciplina.presences) {
+                richMessage.addField(':warning:', 'Você tem mais faltas que presenças');
+            }
+            
+            message.reply({embed: richMessage});
+        }
+    }
 }
 
 export { Dialog } ;
