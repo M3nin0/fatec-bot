@@ -4,7 +4,7 @@
 
 CLI que permite uma melhor interação entre os alunos do Centro Paula Souza e o SIGA (Sistema Integrado de Gestão Acadêmica) através do [fatec-api](https://github.com/filipemeneses/fatec-api).
 
-## Facilitade
+## Facilidade
 
 Esta CLI trás os comandos do [fatec-api](https://github.com/filipemeneses/fatec-api) de uma maneira simples, e o melhor acessível de qualquer lugar a qualquer hora!.
 

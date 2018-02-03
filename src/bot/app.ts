@@ -100,6 +100,15 @@ bot.on('message', message => {
             message.reply('RG: ' + users[message.author.id].myAccount.username.slice(0, -2));
         }
     }
+
+    else if (message.content == '!Ajuda') {
+        let commands: RichEmbed = Dialog.comands();
+        
+        message.reply('Os comandos do bot são: ');
+        message.reply({embed: commands});
+
+        message.reply('Porém caso você tenha mais dúvidas, consule minha wiki: https://goo.gl/KzFoY6');
+    }
 });
 
 bot.login('DISCORD TOKEN');
