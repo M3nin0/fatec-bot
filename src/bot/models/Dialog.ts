@@ -8,8 +8,9 @@ import { Q } from 'q';
 class Dialog{
 
     static comands(): string {
-        return '!Horario - Devolve seu horário\n' +
-                '!Matriculadas - Devolve as disciplinas em que você está matriculado (a)\n' +
+        return '!Comandos - Exibe os comandos que poderão ser usados com o bot\n' +
+                '!Horario - Devolve seu horário\n' +
+                '!Matriculadas - Verifica as disciplinas em que você está matriculado (a)\n' +
                 '!Calendario - Devolve os eventos que irão ocorrer no mês\n' +
                 '!Faltas - Devolve suas faltas nas disciplinas matriculadas\n' +
                 '!Perfil - Devolve informações de seu perfil recuperadas do SIGA\n' +
@@ -41,7 +42,7 @@ class Dialog{
 
         return new Promise((resolve, reject) => {
             if (testAccount.isLogged()){
-                message.reply('Conexão efetuada com sucesso. Agora veja os comandos para realizar as pesquisas.\n');
+                message.reply('Conexão efetuada com sucesso :rofl: Agora veja os comandos para realizar as pesquisas.\n');
                 message.reply(Dialog.comands());
                 resolve(student);
             } else {
@@ -68,20 +69,26 @@ class Dialog{
 
         message.reply('Horários:');
         for (let horario of _horarios) {
-        
+            let richMessage: RichEmbed = new Discord.RichEmbed();
+
+            richMessage.setAuthor('Fatec-Bot');
+            richMessage.description = 'Dia da semana: ' + diasSemana[horario.weekday];
+
+            if (richMessage == undefined) {
+                break;
+            }
+
+            message.reply({embed: richMessage});
             for (let materia of horario.periods) {
 
                 let richMessage: RichEmbed = new Discord.RichEmbed();
-                richMessage.setAuthor('Fatec-Bot');
-                richMessage.description = 'Dia da semana: ' + diasSemana[horario.weekday];
                 richMessage.addField('Nome ', materia.discipline.name);
                 richMessage.addField('Código ', materia.discipline.code);
                 richMessage.addField('Horário de início ', ToolBox.hoursFormat(materia.startAt));
                 richMessage.addField('Horário de término ', ToolBox.hoursFormat(materia.endAt));
-
                 message.reply({embed: richMessage});
             };
-            message.reply('\n---------------------------\n\n');
+
         }
     }
 
@@ -161,7 +168,30 @@ class Dialog{
 
         message.reply()
     }
-}
 
+    /** 
+     * Método para consultar as matérias que o aluno está matriculado.
+     *  - Não salva nenhuma informação, sempre consulta o fatec-api
+    */
+    static async materiasMatriculadas(message: Message, student: Student) {
+        let disciplinas = [];
+
+        await student.myAccount.getEnrolledDisciplines().then(matriculadas => {
+            disciplinas = matriculadas;
+        });
+    
+        message.reply('Matérias matriculadas');
+        for (var disciplina of disciplinas) {
+            
+            let richMessage: RichEmbed = new Discord.RichEmbed();
+
+            richMessage.addField('Nome da matéria', disciplina.name);
+            richMessage.addField('Nome do professor', disciplina.teacherName);
+            
+            message.reply({embed: richMessage}); 
+        }
+    }
+
+}
 
 export { Dialog } ;
