@@ -12,4 +12,4 @@ O bot foi desenvolvido para o **discord** por conta dos altos índices de utiliz
 
 ## Ajuda ?
 
-Precisa de ajuda ? Consule a [wiki]() do projeto, para verificar as formas de uso do bot.
+Precisa de ajuda ? Consule a [wiki](https://github.com/M3nin0/fatec-bot/wiki) do projeto, para verificar as formas de uso do bot.
