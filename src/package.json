@@ -4,7 +4,8 @@
   "description": "Bot que ajuda os fatecanos a verificar os dados do SIGA",
   "main": "bot/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./bot/app.js"
   },
   "author": "Felipe M3nin0",
   "license": "GPL-3.0",
