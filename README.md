@@ -1,4 +1,4 @@
-# Fatec BOT - Discord
+# Fatec Bot - Discord
 
 ![logo](/images/fatecbot.PNG)
 
